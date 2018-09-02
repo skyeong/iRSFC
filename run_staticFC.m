@@ -51,7 +51,6 @@ FILTPARAM = [TR BW];             % set filtering parameters
 REGRESSORS(1) = FMRI.prep.GS;
 REGRESSORS(2) = FMRI.prep.WM;
 REGRESSORS(3) = FMRI.prep.CSF;
-REGRESSORS(4) = FMRI.prep.HM;
 
 
 
@@ -83,10 +82,10 @@ doScrubbing = FMRI.anal.FC.doScrubbing;
 %__________________________________________________________________________
 
 subjpath = fullfile(DATApath,subjnames{1},fmridir);
-fn_nii = sprintf('^%srest_cleaned_bpf.nii$',prefix);
+fn_nii = sprintf('^%s.*._cleaned_bpf.nii$',prefix);
 fns = spm_select('FPList',subjpath,fn_nii);
 if isempty(fns)
-    fn_nii = sprintf('^%srest_cleaned_bpf.nii.gz$',prefix);
+    fn_nii = sprintf('^%s.*._cleaned_bpf.img$',prefix);
     fns = spm_select('FPList',subjpath,fn_nii);
 end
 try
@@ -151,10 +150,10 @@ if (nrois),
         
         
         subjpath = fullfile(DATApath,subj,fmridir);
-        fn_nii = sprintf('^%srest_cleaned_bpf.nii$',prefix);
+        fn_nii = sprintf('^%s.*._cleaned_bpf.nii$',prefix);
         fns = spm_select('FPList',subjpath,fn_nii);
         if isempty(fns)
-            fn_img = sprintf('^%srest_cleaned_bpf.nii.gz$',prefix);
+            fn_img = sprintf('^%s.*._cleaned_bpf.img$',prefix);
             fns = spm_select('FPList',subjpath,fn_img);
         end
         try
@@ -175,7 +174,9 @@ if (nrois),
         %__________________________________________________________________
         
         fprintf('    : calculating seed based connectivity ...\n');
-        fn_motion = fullfile(subjpath,'rp_rest.txt');
+        fn_motion = dir(fullfile(subjpath,'rp_*.txt'));
+        fn_motion = fullfile(subjpath,fn_motion(1).name);
+        
         if ~exist(fn_motion,'file'),
             fprintf('Cannot find rp*.txt file in\n%s\n',subjpath);
             break;

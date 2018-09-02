@@ -61,7 +61,6 @@ FILTPARAM = [TR BW];             % set filtering parameters
 REGRESSORS(1) = FMRI.prep.GS;
 REGRESSORS(2) = FMRI.prep.WM;
 REGRESSORS(3) = FMRI.prep.CSF;
-REGRESSORS(4) = FMRI.prep.HM;
 
 
 

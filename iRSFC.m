@@ -67,12 +67,11 @@ end
 function iRSFC_init(handles)
 global FMRI
 
-set(handles.checkbox_HM, 'Value',FMRI.prep.HM);
-set(handles.checkbox_WM, 'Value',FMRI.prep.WM);
-set(handles.checkbox_CSF,'Value',FMRI.prep.CSF);
-set(handles.checkbox_GS, 'Value',FMRI.prep.GS);
-set(handles.checkbox_PCA,'Value',FMRI.prep.PCA);
-set(handles.edit_nPCA,   'Value',FMRI.prep.nPCA);
+set(handles.checkbox_WM,  'Value', FMRI.prep.WM);
+set(handles.checkbox_CSF, 'Value', FMRI.prep.CSF);
+set(handles.checkbox_GS,  'Value', FMRI.prep.GS);
+set(handles.checkbox_PCA, 'Value', FMRI.prep.PCA);
+set(handles.edit_nPCA,    'Value', FMRI.prep.nPCA);
 
 
 % Default mode: HM, PCA (3 components)
@@ -158,9 +157,19 @@ end
     
     
 
-function checkbox_HM_Callback(hObject, eventdata, handles)
+% --- Executes on selection change in popupmenu_HM.
+function popupmenu_HM_Callback(hObject, eventdata, handles)
 global FMRI
-FMRI.prep.HM = get(hObject,'Value');
+button_state = get(hObject,'Value');
+if button_state == 1,
+    nHM = 24;
+elseif button_state == 2,
+    nHM = 12;
+elseif button_state == 3,
+    nHM = 6;
+end
+FMRI.prep.nHM = nHM;
+fprintf('Number of head motions: %d \n',nHM);
 
 
 
@@ -387,6 +396,9 @@ else
     errordlg('Specify parameters correctly!!','Error Dialog');
     return
 end
+
+
+
 
 
 

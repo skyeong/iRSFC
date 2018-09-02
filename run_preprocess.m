@@ -44,7 +44,6 @@ FILTPARAM = [TR BW];             % set filtering parameters
 REGRESSORS(1) = FMRI.prep.GS;
 REGRESSORS(2) = FMRI.prep.WM;
 REGRESSORS(3) = FMRI.prep.CSF;
-REGRESSORS(4) = FMRI.prep.HM;
 
 
 
@@ -56,7 +55,7 @@ subjpath = fullfile(DATApath,subjnames{1},fmridir);
 fn_nii = sprintf('^%s.*.nii$',prefix);
 fns = spm_select('FPList',subjpath,fn_nii);
 if isempty(fns)
-    fn_img = sprintf('^%s.*.nii.gz$',prefix);
+    fn_img = sprintf('^%s.*.img$',prefix);
     fns = spm_select('FPList',subjpath,fn_img);
 end
 

@@ -14,13 +14,13 @@ FMRI.prep.TR = 2;             % TR time: volume acquisition time
 FMRI.prep.BW = [0.009 0.08];  % frequency range for bandpass filter
 FMRI.prep.dummyoff = 5;
 FMRI.prep.fmridir = 'rest';
-FMRI.prep.prefix = 's6w2';
-FMRI.prep.HM  = 1;
+FMRI.prep.prefix = 'swar';
+FMRI.prep.nHM = 24;
 FMRI.prep.CSF = 1;
 FMRI.prep.WM  = 1;
 FMRI.prep.GS  = 0;  % global signal
-FMRI.prep.PCA = 0; 
-FMRI.prep.nPCA= 5;  % Suggested by X.J. Chai et al. / NeuroImage 59 (2012) 1420?1428
+FMRI.prep.PCA = 1; 
+FMRI.prep.nPCA= 3;  % Suggested by X.J. Chai et al. / NeuroImage 59 (2012) 1420?1428
 
 
 % Parameters for rsfmri analysis

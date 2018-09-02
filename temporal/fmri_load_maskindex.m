@@ -1,49 +1,102 @@
 function [idbrainmask,idgm,idwm,idcsf] = fmri_load_maskindex(vref)
 
-% mask image was obtained from REST toolbox
-% journal: DPARSF: A MATLAB Toolbox for ?Pipeline? Data Analysis of Resting-State fMRI
-% nearest neighbour
-idbrainmask = iRSF_resample_from(vref,'mask_ICV.nii');  
-idgm        = iRSF_resample_from(vref,'GreyMask_02_91x109x91.img');
-idwm        = iRSF_resample_from(vref,'WhiteMask_09_91x109x91.img');
-idcsf       = iRSF_resample_from(vref,'CsfMask_07_91x109x91.img');
+warning('off','all');
+idbrainmask = iRSFC_brainmask(vref,0.1,0);    % nearest neighbour
 
+idgm   = iRSFC_apriorimask(vref,0.2,0.5,0.5,'gm');
+idwm   = iRSFC_apriorimask(vref,0.3,0.2,0.4,'wm');
+idcsf  = iRSFC_apriorimask(vref,0.3,0.7,0.4,'csf');
 
-function idroi = iRSF_resample_from(vref,mask_name)
-
-global FMRI
-iRSFCpath = FMRI.iRSFCpath;
-
-if nargin<2,
-    error('Modality should be correctly specified ....');
 end
 
-% Read reference image
-if ischar(vref),Masking
-    vo_ref = spm_vol(vref);
+%--------------------------------------------------------------------------
+%  GENERATE WHOLE BRAIN MASK
+%--------------------------------------------------------------------------
+
+function idbrainmask = iRSFC_brainmask(vref,prob,sorder)
+
+if strcmpi(spm('ver'),'spm12'),
+    maskbm = fullfile(spm('dir'), 'tpm', 'mask_ICV.nii');
+elseif strcmpi(spm('ver'),'spm8'),
+    maskbm = fullfile(spm('dir'), 'apriori', 'brainmask.nii');
+end
+
+vmask  = spm_vol_nifti(maskbm);
+BM     = spm_read_vols(vmask);
+
+if ischar(vref),
+    vol = spm_vol(vref);
 else
-    vo_ref = vref;
+    vol=vref;
 end;
 
-% Mask image: Get XYZ-Coordinates
-fn_mask = fullfile(iRSFCpath,'brainmask',mask_name);
-vo_mask = spm_vol_nifti(fn_mask);
-MASK    = spm_read_vols(vo_mask);
-idmask  = find(MASK>0);
-[vx, vy, vz] = ind2sub(vo_mask.dim,idmask);
-Vxyz = [vx, vy, vz, ones(size(vx,1),1)];
+vol = vol(1);
 
-% Resampled in standard normalized space
-Rxyz = vo_mask.mat*Vxyz';
-Vxyz = round(vo_ref.mat\Rxyz);
+[x,y,z]= meshgrid(1:vol.dim(2),1:vol.dim(1),1:vol.dim(3));
+x = x(:); y = y(:); z = z(:);
+xyz = [y x z ones(size(x))]';% Coord. in fmri : x & y ! in SPM5, SPM8
+xyz = (vmask.mat\vol.mat) * xyz;
+xyz = xyz';  % Coord. in template
 
-% To remove data lying in the boundaries
-idzeros = union(find(Vxyz(1,:)==0), find(Vxyz(2,:)==0));
-idzeros = union(find(Vxyz(3,:)==0), idzeros);
-Vxyz(:,idzeros) = [];
-
-% Transformation from original MASK space to the reference space
-idroi = sub2ind(vo_ref.dim, Vxyz(1,:), Vxyz(2,:), Vxyz(3,:));
-idroi = unique(idroi);
+bmsample  = spm_sample_vol(BM,xyz(:,1),xyz(:,2),xyz(:,3),sorder);
+idbrainmask = find(bmsample>prob);
+end
 
 
+%  GENERATE BRAIN MASK FOR GM / WM / CSF
+%__________________________________________________________________________
+
+function idvol = iRSFC_apriorimask(vref,gmprob,whprob,csfprob,modality)
+
+ % nearest neighbour
+sorder = 0;          
+
+if strcmpi(spm('ver'),'spm12'),
+    maskgm  = fullfile(spm('dir'), 'tpm', 'TPM.nii,1');
+    maskwm  = fullfile(spm('dir'), 'tpm', 'TPM.nii,2');
+    maskcsf = fullfile(spm('dir'), 'tpm', 'TPM.nii,3');
+elseif strcmpi(spm('ver'),'spm8'),
+    maskgm  = fullfile(spm('dir'), 'apriori', 'grey.nii');
+    maskwm  = fullfile(spm('dir'), 'apriori', 'white.nii');
+    maskcsf = fullfile(spm('dir'), 'apriori', 'csf.nii');
+end
+
+vgm  = spm_vol(maskgm);
+GM   = spm_read_vols(vgm);
+
+vwm  = spm_vol(maskwm);
+WM   = spm_read_vols(vwm);
+
+vcsf  = spm_vol(maskcsf);
+CSF   = spm_read_vols(vcsf);
+
+if ischar(vref),Masking
+    vol = spm_vol(vref);
+else
+    vol=vref;
+end;
+vol = vol(1);
+
+[x,y,z]= meshgrid(1:vol.dim(2),1:vol.dim(1),1:vol.dim(3));
+x = x(:); y = y(:); z = z(:);
+xyz = [y x z ones(size(x))]';% Coord. in fmri : x & y ! in SPM5, SPM8
+xyz = (vgm.mat\vol.mat) * xyz;
+xyz = xyz'; % Coord. in template
+
+gmsample  = spm_sample_vol(GM,xyz(:,1),xyz(:,2),xyz(:,3),sorder);
+wmsample  = spm_sample_vol(WM,xyz(:,1),xyz(:,2),xyz(:,3),sorder);
+csfsample = spm_sample_vol(CSF,xyz(:,1),xyz(:,2),xyz(:,3),sorder);
+
+idwm = find(gmsample<gmprob & wmsample>whprob & csfsample<csfprob);
+idgm = find(gmsample>gmprob & wmsample<whprob & csfsample<csfprob);
+idcsf = find(gmsample<gmprob & wmsample<whprob & csfsample>csfprob);
+
+switch lower(modality),
+    case('wm'),
+        idvol = idwm;
+    case('gm'),
+        idvol = idgm;
+    case('csf'),
+        idvol = idcsf;
+end
+end

@@ -13,6 +13,7 @@ BW        = FMRI.prep.BW;        % frequency range for bandpass filter
 dummyoff  = FMRI.prep.dummyoff;  % num. of dummy data from beginning
 prefix    = FMRI.prep.prefix;
 
+nHM       = FMRI.prep.nHM;
 doCompCor = FMRI.prep.PCA;
 nCompCor  = FMRI.prep.nPCA;
 
@@ -22,10 +23,12 @@ nCompCor  = FMRI.prep.nPCA;
 %__________________________________________________________________________
 
 subjpath = fullfile(DATApath,subj,fMRIpath);
-fn_nii = sprintf('^%srest.nii$',prefix);
+cmd = sprintf('!rm -rf %s/*cleaned*.nii',subjpath); eval(cmd);
+fprintf('    : Delete existing files...\n');
+fn_nii = sprintf('^%s.*.nii$',prefix);
 fns = spm_select('FPList',subjpath,fn_nii);
 if isempty(fns)
-    fn_img = sprintf('^%srest.nii.gz$',prefix);
+    fn_img = sprintf('^%s.*.img$',prefix);
     fns = spm_select('FPList',subjpath,fn_img);
 end
 
@@ -65,14 +68,22 @@ vs = vs(scans);
 MOTION = dlmread(deblank(rpname)); % motion covariates
 MOTION = MOTION(scans,:);
 MOTION = detrend(MOTION,'linear');
-fprintf('    : 6-parameters (x,y,z,pitch,roll,yaw) were modeled.\n');
+fprintf('    : 6 head motions (HMs) were included.\n');
 
 
 % derivative 12-parameter model
-if 0,
+if nHM>=12,
     derMotion = zeros(size(MOTION));
-    derMotion(2:end,:) = diff(MOTION);    MOTION = [MOTION, derMotion];
-    fprintf('    : 12-parameters (motion and its derivative) were modeled.\n');
+    derMotion(2:end,:) = diff(MOTION);
+    MOTION = [MOTION, derMotion];
+    fprintf('    : additional 6 params (derivatives of HMs) were included\n');
+end
+
+
+% derivative 24-parameter model
+if nHM>=24,
+    MOTION = [MOTION, MOTION.^2];
+    fprintf('    : additional 12 params (squares of HMs and its derivatives) were included\n');
 end
 
 
@@ -95,9 +106,7 @@ GS  = mean(Y(idbrainmask,:),1)';
 %  Select Types of regressors
 %__________________________________________________________________
 
-st = dummyoff+1;
-NUIS = [];
-if REGRESSORS(4),  NUIS = [NUIS, MOTION];       end
+NUIS = MOTION;
 
 if doCompCor==1,
     % Extract Physiological Noise using CompCor method
@@ -106,10 +115,10 @@ if doCompCor==1,
     if REGRESSORS(3), noisePhy = [noisePhy; Y(idcsf,:)]; end
     
     % Singular Value Decomposition
-    [U, S, V] = svd(noisePhy','econ');
-    noiseComp = U(:,1:nCompCor);
+    [coeff1,score,latent,tsquared,explained] = pca(noisePhy,'Algorithm','svd');
+    noiseComp = coeff1(:,1:nCompCor);
     NUIS = [NUIS, noiseComp];
-    fprintf('    : %d-PCs of physiological noises were modeled.\n',nCompCor);
+    fprintf('    : %d-PCs using aCompCor were modeled (var = %.2f pct).\n',nCompCor,sum(explained(1:nCompCor)));
 else
     % Extract Physiological Noise using mean value
     if REGRESSORS(1), NUIS = [NUIS, GS];         end
@@ -120,9 +129,9 @@ end
 
 
 % Normalization of NUIS is not necessary process..
-% mNUIS=repmat(mean(NUIS),nscan,1);
-% stdNUIS=repmat(std(NUIS),nscan,1);
-% NUIS=(NUIS-mNUIS)./ stdNUIS;
+mNUIS=repmat(mean(NUIS),nscan,1);
+stdNUIS=repmat(std(NUIS),nscan,1);
+NUIS=(NUIS-mNUIS)./ stdNUIS;
 
 
 % 3. Regressing out the Nuisance parameters in BOLD signal
