@@ -169,22 +169,22 @@ if (nrois),
         Z = spm_read_vols(vs);
         Z = reshape(Z, prod(vs(1).dim), length(vs));
         
-        
-        %  Compute Frame-wise displacement for scrubbing time-series
-        %__________________________________________________________________
-        
-        fprintf('    : calculating seed based connectivity ...\n');
-        fn_motion = dir(fullfile(subjpath,'rp_*.txt'));
-        fn_motion = fullfile(subjpath,fn_motion(1).name);
-        
-        if ~exist(fn_motion,'file'),
-            fprintf('Cannot find rp*.txt file in\n%s\n',subjpath);
-            break;
-        end
-        motion = dlmread(fn_motion);
-        FD_val = compute_fd(motion(dummyoff+1:end,:),'spm');
-        
         if doScrubbing,
+            
+            %  Compute Frame-wise displacement for scrubbing time-series
+            %______________________________________________________________
+          
+            fprintf('    : calculating seed based connectivity ...\n');
+            fn_motion = dir(fullfile(subjpath,'rp_*.txt'));
+            fn_motion = fullfile(subjpath,fn_motion(1).name);
+            
+            if ~exist(fn_motion,'file'),
+                fprintf('Cannot find rp*.txt file in\n%s\n',subjpath);
+                break;
+            end
+            motion = dlmread(fn_motion);
+            FD_val = compute_fd(motion(dummyoff+1:end,:),'spm');
+            
             % scrubbing 1 back and 2 forward neighbors as performed by Power et al
             idxScrubbing = find(FD_val>FDthr);
             idxScrubbing_b1 = idxScrubbing-1;
@@ -256,7 +256,7 @@ if (nrois),
             SAVEname = sprintf('network_%s.mat',subj);
             SAVEname = fullfile(SAVEpath,SAVEname);
             
-            save(SAVEname,'Z','R','P','seeds', 'FD_val');
+            save(SAVEname,'Z','R','P','seeds');
             ZZ(c,:,:) = Z; clear Z R P;
         end
         fprintf('\n');
