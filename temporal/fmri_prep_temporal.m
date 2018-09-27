@@ -34,7 +34,7 @@ end
 
 % Get Reference Image for the Brain Mask Extraction
 vref = spm_vol(fns(1,:));
-if length(vref)>1, vref=vref(1); end;
+if length(vref)>1, vref=vref(1); end
 [idbrainmask, idgm, idwm, idcsf] = fmri_load_maskindex(vref);
 
 fprintf('    : Nuisance Regression and Bandpass Filtering\n');
@@ -44,11 +44,11 @@ fprintf('    : Nuisance Regression and Bandpass Filtering\n');
 rpname = fullfile(subjpath,'rp_*.txt');
 rpname = dir(rpname);
 
-if isempty(rpname),
+if isempty(rpname)
     errordlg('WARNING: motion parameter for %s does not exist...\n',subj);
 else
     rpname=fullfile(subjpath, rpname(1).name);
-end;
+end
 
 
 
@@ -72,7 +72,7 @@ fprintf('    : 6 head motions (HMs) were included.\n');
 
 
 % derivative 12-parameter model
-if nHM>=12,
+if nHM>=12
     derMotion = zeros(size(MOTION));
     derMotion(2:end,:) = diff(MOTION);
     MOTION = [MOTION, derMotion];
@@ -81,7 +81,7 @@ end
 
 
 % derivative 24-parameter model
-if nHM>=24,
+if nHM>=24
     MOTION = [MOTION, MOTION.^2];
     fprintf('    : additional 12 params (squares of HMs and its derivatives) were included\n');
 end
@@ -108,15 +108,15 @@ GS  = mean(Y(idbrainmask,:),1)';
 
 NUIS = MOTION;
 
-if doCompCor==1,
+if doCompCor==1
     % Extract Physiological Noise using CompCor method
     noisePhy = [];
     if REGRESSORS(2), noisePhy = [noisePhy; Y(idwm,:)]; end
     if REGRESSORS(3), noisePhy = [noisePhy; Y(idcsf,:)]; end
     
     % Singular Value Decomposition
-    [coeff1,score,latent,tsquared,explained] = pca(noisePhy,'Algorithm','svd');
-    noiseComp = coeff1(:,1:nCompCor);
+    [coeff1,score,latent,tsquared,explained] = pca(noisePhy,'Algorithm','svd','NumComponents',nCompCor);
+    noiseComp = coeff1;
     NUIS = [NUIS, noiseComp];
     fprintf('    : %d-PCs using aCompCor were modeled (var = %.2f pct).\n',nCompCor,sum(explained(1:nCompCor)));
 else
@@ -146,9 +146,9 @@ spm_write_vols(vref, Z1, subjpath, 'cleaned');
 
 
 % 4. Bandpass filtering of BOLD signal
-Y_bpf = rest_IdealFilter(Z1(idbrainmask,:)',TR,BW)';
+Y_filtered = rest_IdealFilter(Z1(idbrainmask,:)',TR,BW)';
 ZZ = zeros(prod(vs(1).dim),length(vs));
-ZZ(idbrainmask,:) = Y_bpf; clear Y_bpf;
+ZZ(idbrainmask,:) = Y_filtered; clear Y_filtered;
 
 
 % Write temporary files

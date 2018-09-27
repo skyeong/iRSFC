@@ -60,7 +60,7 @@ if isempty(fns)
 end
 
 vref=spm_vol(fns(1,:));
-if length(vref)>1,vref=vref(1);end;
+if length(vref)>1,vref=vref(1);end
 [idbrainmask, idgm, idwm, idcsf] = fmri_load_maskindex(vref);
 
 
@@ -78,7 +78,7 @@ pause(0.2);
 nsubj = length(subjnames);
 
 
-for c=1:nsubj,
+for c=1:nsubj
     
     subj = subjnames{c};
     fprintf('  [%03d/%03d] subj %s is in analyzing ... (%.1f min.) \n',c,nsubj,subj,toc/60);
