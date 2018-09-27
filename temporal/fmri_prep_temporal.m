@@ -23,12 +23,13 @@ nCompCor  = FMRI.prep.nPCA;
 %__________________________________________________________________________
 
 subjpath = fullfile(DATApath,subj,fMRIpath);
-cmd = sprintf('!rm -rf %s/*cleaned*.nii',subjpath); eval(cmd);
+cmd = sprintf('!rm -rf %s/*cleaned.nii',subjpath); eval(cmd);
+cmd = sprintf('!rm -rf %s/*cleaned_bpf.nii',subjpath); eval(cmd);
 fprintf('    : Delete existing files...\n');
-fn_nii = sprintf('^%s.*.nii$',prefix);
+fn_nii = sprintf('^%srest.nii$',prefix);
 fns = spm_select('FPList',subjpath,fn_nii);
 if isempty(fns)
-    fn_img = sprintf('^%s.*.img$',prefix);
+    fn_img = sprintf('^%srest.img$',prefix);
     fns = spm_select('FPList',subjpath,fn_img);
 end
 
