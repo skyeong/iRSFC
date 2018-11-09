@@ -6,7 +6,7 @@ global FMRI
 
 
 %  PARAMETERS FOR TEMPORAL FMRI DATA PROCESSING
-%__________________________________________________________________________
+%--------------------------------------------------------------------------
 
 TR        = FMRI.prep.TR;        % TR time: volume acquisition time
 BW        = FMRI.prep.BW;        % frequency range for bandpass filter
@@ -20,7 +20,7 @@ nCompCor  = FMRI.prep.nPCA;
 
 
 %  LOAD BRAIN ATLAS: AAL or FSURF
-%__________________________________________________________________________
+%--------------------------------------------------------------------------
 
 subjpath = fullfile(DATApath,subj,fMRIpath);
 cmd = sprintf('!rm -rf %s/*cleaned.nii',subjpath); eval(cmd);
@@ -105,7 +105,7 @@ GS  = mean(Y(idbrainmask,:),1)';
 
 
 %  Select Types of regressors
-%__________________________________________________________________
+%--------------------------------------------------------------------------
 
 NUIS = MOTION;
 

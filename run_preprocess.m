@@ -1,5 +1,5 @@
 %  EXCUTE the preprocessing
-%__________________________________________________________________________
+%--------------------------------------------------------------------------
 
 global FMRI
 tic;  ST = clock;
@@ -10,15 +10,13 @@ fprintf('=======================================================================
 
 
 %  Flag for Debug mode
-%__________________________________________________________________________
-
+%--------------------------------------------------------------------------
 DEBUGmode = 0;
 
 
 
 %  SPECIFY your own study
-%__________________________________________________________________________
-
+%--------------------------------------------------------------------------
 DATApath  = FMRI.prep.DATApath;
 subjnames = FMRI.prep.subjList;
 ANApath   = FMRI.anal.FC.OUTpath;
@@ -28,8 +26,7 @@ prefix    = FMRI.prep.prefix;
 
 
 %  PARAMETERS FOR TEMPORAL FMRI DATA PROCESSING
-%__________________________________________________________________________
-
+%--------------------------------------------------------------------------
 TR        = FMRI.prep.TR;        % TR time: volume acquisition time
 BW        = FMRI.prep.BW;        % frequency range for bandpass filter
 dummyoff  = FMRI.prep.dummyoff;  % num. of dummy data from beginning
@@ -39,8 +36,7 @@ FILTPARAM = [TR BW];             % set filtering parameters
 
 
 %  REGRESSORS SELECTION
-%__________________________________________________________________________
-
+%--------------------------------------------------------------------------
 REGRESSORS(1) = FMRI.prep.GS;
 REGRESSORS(2) = FMRI.prep.WM;
 REGRESSORS(3) = FMRI.prep.CSF;
@@ -49,8 +45,7 @@ REGRESSORS(3) = FMRI.prep.CSF;
 
 
 %  FIND REFERENCE FILE
-%__________________________________________________________________________
-
+%--------------------------------------------------------------------------
 subjpath = fullfile(DATApath,subjnames{1},fmridir);
 fn_nii = sprintf('^%srest.*.nii$',prefix);
 fns = spm_select('FPList',subjpath,fn_nii);
@@ -67,8 +62,7 @@ if length(vref)>1,vref=vref(1);end
 
 
 %  CORRELATION ANALYSIS USING TIME SERIES
-%__________________________________________________________________________
-
+%--------------------------------------------------------------------------
 colorsalmon = [234, 100, 100]/255.;
 set(handles.run_analysis,'ForegroundColor',[1 1 1]);
 set(handles.run_analysis,'BackgroundColor',[234 100 100]./256);
@@ -85,7 +79,7 @@ for c=1:nsubj
     
     
     %  TEMPORAL PREPROCESSING
-    %__________________________________________________________________
+    %----------------------------------------------------------------------
     
     msg_on_handle=sprintf('subj %03d/%03d (Preprocessing ...)  ',c,nsubj);
     set(handles.analcorr_status,'String',msg_on_handle);

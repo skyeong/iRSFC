@@ -2,21 +2,19 @@ function  RLFF_1stlevel_contrast(subjname,fmridir)
 global FMRI
 
 
-%  SPECIFY your own study
-%__________________________________________________________________________
-
-OUTpath  = fullfile(FMRI.anal.FC.OUTpath,'LFFs_1stlevel');
-
-
-
 fprintf('\n-----------------------------------------------------------------------\n');
 fprintf('  %s,  LFF modeling... \n', upper(subjname));
 fprintf('-----------------------------------------------------------------------\n');
 
 
-%  Contrasts for SPM 1st Level
-%__________________________________________________________________
+%  SPECIFY your own study
+%--------------------------------------------------------------------------
+OUTpath  = fullfile(FMRI.anal.FC.OUTpath,'LFFs_1stlevel');
 
+
+
+%  Contrasts for SPM 1st Level
+%--------------------------------------------------------------------------
 F_contrast = [1 zeros(1,13);
     0 1 zeros(1,12);
     0 0 1 zeros(1,11);

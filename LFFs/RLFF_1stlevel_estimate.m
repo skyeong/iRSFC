@@ -1,25 +1,22 @@
-function LFFs_1stlevel_estimate(subjname,fmridir)
+function RLFF_1stlevel_estimate(subjname,fmridir)
 global FMRI
-
-
-%  SPECIFY your own study
-%__________________________________________________________________________
-
-OUTpath    = fullfile(FMRI.anal.FC.OUTpath,'LFFs_1stlevel');
-
-
-
-%  START THE SPM BATCH JOBS
-%__________________________________________________________________________
-
-spm('Defaults', 'fMRI')
-spm_jobman('initcfg');  %% Useful in SPM8 only
-clear jobs;
 
 fprintf('\n-----------------------------------------------------------------------\n');
 fprintf('  1st LEVEL MOODEL ESTIMATION ... \n');
 fprintf('-----------------------------------------------------------------------\n');
 
+
+%  SPECIFY your own study
+%--------------------------------------------------------------------------
+OUTpath    = fullfile(FMRI.anal.FC.OUTpath,'LFFs_1stlevel');
+
+
+
+%  START THE SPM BATCH JOBS
+%--------------------------------------------------------------------------
+spm('Defaults', 'fMRI')
+spm_jobman('initcfg');  %% Useful in SPM8 only
+clear jobs;
 
 outdir = fullfile(OUTpath,subjname,fmridir);
 SPMmat = fullfile(outdir,'SPM.mat');

@@ -2,7 +2,7 @@ function ALFF_1stlevel_analysis(subjname,fmridir)
 global FMRI
 
 %  SPECIFY your own study
-%__________________________________________________________________________
+%--------------------------------------------------------------------------
 
 DATApath   = FMRI.prep.DATApath;
 DATAprefix = FMRI.prep.prefix;
@@ -12,105 +12,53 @@ OUTpath    = FMRI.anal.FC.OUTpath;
 
 
 %  PARAMETERS FOR TEMPORAL FMRI DATA PROCESSING
-%__________________________________________________________________________
+%--------------------------------------------------------------------------
 
 dummyoff  = FMRI.prep.dummyoff;  % num. of dummy data from beginning
 TR        = FMRI.prep.TR;        % TR time: volume acquisition time
 f_lp      = FMRI.prep.BW(1);
 f_hp      = FMRI.prep.BW(2);
 
-%  REGRESSORS SELECTION
-%__________________________________________________________________________
-
-REGRESSORS(1) = FMRI.prep.GS;
-REGRESSORS(2) = FMRI.prep.WM;
-REGRESSORS(3) = FMRI.prep.CSF;
-REGRESSORS(4) = FMRI.prep.HM;
-doCompCor     = FMRI.prep.PCA;
-nCompCor      = FMRI.prep.nPCA;
-
-
-
-fmripath = fullfile(DATApath,subjname,fmridir);
-fprintf('::: Loading rsfMRI: %s (%s) ...\n', subjname, fmridir);
-
 
 %  Resting State Functional Images
-%__________________________________________________________________
-
-
-fns = dir(fullfile(fmripath,[DATAprefix 'rest*.nii']));
-fns = [fns; dir(fullfile(fmripath,[DATAprefix 'rest*.nii.gz']))];
-vs = spm_vol(fullfile(fmripath,fns.name)); DIM = vs(1).dim;
-vs = vs(dummyoff+1:end);
+%--------------------------------------------------------------------------
+fmripath = fullfile(DATApath,subjname,fmridir);
+fprintf('%s (%s) is loading and analyzing:  ...\n', subjname, fmridir);
+fns = spm_select('FPList',fmripath,[DATAprefix 'rest_cleaned.nii']);
+vs = spm_vol(fns);
+DIM = vs(1).dim;
+vs = vs(dummyoff+1:end); vref = vs(1);
 IMG = spm_read_vols(vs);
-IMG = reshape(IMG, prod(vs(1).dim), length(vs));
+IMG = reshape(IMG, prod(DIM), length(vs));
+[idbrainmask, idgm, idwm, idcsf] = fmri_load_maskindex(vref);
 
-
-%  Extract Confounding Factors: WM and CSF effects
-%__________________________________________________________________
-
-[idbrainmask, idgm, idwm, idcsf] = fmri_load_maskindex(vs(1));
-IMG = spm_detrend(IMG',1)';
-GS = mean(IMG(idbrainmask,:)); GS = GS(:);
-WM = mean(IMG(idwm,:));        WM = WM(:);
-CSF = mean(IMG(idcsf,:));      CSF = CSF(:);
-
-
-
-%  Read Motion Parameters
-%__________________________________________________________________
-
-rpname = fullfile(fmripath,'rp_*.txt');
-rpname = dir(rpname);
-rpname = fullfile(fmripath, rpname(1).name);
-MOTION = dlmread(rpname);
-MOTION = detrend(MOTION(dummyoff+1:end,:),'linear');
-
-
-
-%  Select Types of regressors
-%__________________________________________________________________
-
-NUIS = [];
-if REGRESSORS(4),  NUIS = [NUIS, MOTION];       end
-
-if doCompCor==1
-    % Extract Physiological Noise using CompCor method
-    noisePhy = [];
-    if REGRESSORS(2), noisePhy = [noisePhy; IMG(idwm, :)]; end
-    if REGRESSORS(3), noisePhy = [noisePhy; IMG(idcsf,:)]; end
-    
-    [noiseComp, score] = pca(noisePhy,'NumComponents',nCompCor);
-    NUIS = [NUIS, noiseComp];
-else
-    % Extract Physiological Noise using mean value
-    if REGRESSORS(1), NUIS = [NUIS, GS];         end
-    if REGRESSORS(2), NUIS = [NUIS, WM];         end
-    if REGRESSORS(3), NUIS = [NUIS, CSF];        end
-end
 
 
 %  Compute ALFF
-%__________________________________________________________________
-
-fprintf('::: Compute ALFF and fALFF ...\n');
+%--------------------------------------------------------------------------
+fprintf('    : Compute ALFF and fALFF ...\n');
 nvox = length(idbrainmask);
-ts = iRSFC_NUIS_regress(IMG(idbrainmask,:)',NUIS)';
-tmpfALFF = zeros(nvox,1);
-tmpALFF  = zeros(nvox,1);
+ts = IMG(idbrainmask,:);
+tmpfALFF = nan(nvox,1);
+tmpALFF  = nan(nvox,1);
 parfor j=1:nvox
-    [cALFF, cFALFF] = LFCD_alff(ts(j,:), TR, f_lp, f_hp );
+    if std(ts(j,:))<0.1
+        cALFF=nan;
+        cFALFF=nan;
+    else
+        [cALFF, cFALFF] = LFCD_alff(ts(j,:), TR, f_lp, f_hp );
+    end
     tmpALFF(j) = cALFF;
     tmpfALFF(j) = cFALFF;
 end
 
+
 %--------------------------------------------------------------------------
 %  ALFF: Z-transformation
 %--------------------------------------------------------------------------
-fprintf('::: Writing ALFF results in zmap ...\n');
+fprintf('    : Writing ALFF results in zmap ...\n');
 ALFF = zeros(DIM);
-ALFF(idbrainmask) = (tmpALFF-mean(tmpALFF))./std(tmpALFF);  % standard z-transform
+ALFF(idbrainmask) = (tmpALFF-nanmean(tmpALFF))./nanstd(tmpALFF);  % standard z-transform
 
 % ALFF: Writing results
 path_ALFF = fullfile(OUTpath,'staticFC_zmaps','ALFF',fmridir); mkdir(path_ALFF);
@@ -125,9 +73,9 @@ spm_write_vol(vout,ALFF);
 %--------------------------------------------------------------------------
 %  fALFF: Z-transformation
 %--------------------------------------------------------------------------
-fprintf('::: Writing fALFF results in zmap ...\n\n');
+fprintf('    : Writing fALFF results in zmap ...\n\n');
 fALFF = zeros(DIM);
-fALFF(idbrainmask) = (tmpfALFF-mean(tmpfALFF))./std(tmpfALFF);  % standard z-transform
+fALFF(idbrainmask) = (tmpfALFF-nanmean(tmpfALFF))./nanstd(tmpfALFF);  % standard z-transform
 
 % fALFF: Writing results
 path_fALFF = fullfile(OUTpath,'staticFC_zmaps','fALFF',fmridir); mkdir(path_fALFF);
