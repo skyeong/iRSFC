@@ -161,11 +161,11 @@ end
 function popupmenu_HM_Callback(hObject, eventdata, handles)
 global FMRI
 button_state = get(hObject,'Value');
-if button_state == 1,
+if button_state == 1
     nHM = 24;
-elseif button_state == 2,
+elseif button_state == 2
     nHM = 12;
-elseif button_state == 3,
+elseif button_state == 3
     nHM = 6;
 end
 FMRI.prep.nHM = nHM;
@@ -197,7 +197,7 @@ catch
     error('Positive integer should be entered.')
 end
 
-if nPCA<1,
+if nPCA<1
     error('Positive integer should be entered.')
 end
 
@@ -227,7 +227,7 @@ FMRI.prep.TR = eval(TR);
 function DATApath_Callback(hObject, eventdata, handles)
 global FMRI
 DATApath = get(hObject,'String');
-if ~exist(DATApath,'dir'),
+if ~exist(DATApath,'dir')
     errordlg([DATApath ' does not exist.'])
 end
 FMRI.prep.DATApath = DATApath;
@@ -308,12 +308,14 @@ fprintf('atlas_num = %s\n',seed_ids);
 function select_Atlas_regions_Callback(hObject, eventdata, handles)
 global FMRI
 
-if strcmpi(FMRI.anal.selected_atlas,'AAL'),
+if strcmpi(FMRI.anal.selected_atlas,'AAL')
     [a,b,data]=xlsread('AAL.xls');
-elseif strcmpi(FMRI.anal.selected_atlas,'shen_268'),
+elseif strcmpi(FMRI.anal.selected_atlas,'shen_268')
     [a,b,data]=xlsread('shen_268.xls');
-elseif strcmpi(FMRI.anal.selected_atlas,'Dosenbach'),
+elseif strcmpi(FMRI.anal.selected_atlas,'Dosenbach')
     [a,b,data]=xlsread('Dosenbach.xls');
+elseif strcmpi(FMRI.anal.selected_atlas,'HarvardOxford')
+    [a,b,data]=xlsread('HarvardOxford.xls');
 else
     errordlg('Select Atlas!!','Error Dialog');
     return
@@ -323,7 +325,7 @@ hdr = data(1,:);
 Atlas = data(2:end,2);
 
 [seed_Atlas,ok] = listdlg('PromptString','Select ROIs:','ListString',Atlas);
-if ok==1,
+if ok==1
     FMRI.anal.FC.ids = seed_Atlas;
     seed_Atlas = num2str(seed_Atlas);
     seed_Atlas = sprintf('[%s]',seed_Atlas(1,1:end));
@@ -351,12 +353,14 @@ FMRI.anal.FC.OUTpath = OUTpath;
 function popupmenu_selectAtlas_Callback(hObject, eventdata, handles)
 global FMRI
 button_state = get(hObject,'Value');
-if button_state == 2,
+if button_state == 2
     selected_atlas = 'AAL';
-elseif button_state == 3,
+elseif button_state == 3
     selected_atlas = 'shen_268';
-elseif button_state == 4,
+elseif button_state == 4
     selected_atlas = 'Dosenbach';
+elseif button_state == 5
+    selected_atlas = 'HarvardOxford';
 end
 FMRI.anal.selected_atlas = selected_atlas;
 
@@ -366,25 +370,25 @@ FMRI.anal.selected_atlas = selected_atlas;
 function run_analysis_Callback(hObject, eventdata, handles)
 global FMRI
 
-if strcmpi(FMRI.anal.mode,'Preprocess'),
-    if check_iRSFC_params(0)==1,
+if strcmpi(FMRI.anal.mode,'Preprocess')
+    if check_iRSFC_params(0)==1
         run_preprocess;
     end
     
-elseif strcmpi(FMRI.anal.mode,'staticFC'),
-    if check_iRSFC_params(1)==1,
+elseif strcmpi(FMRI.anal.mode,'staticFC')
+    if check_iRSFC_params(1)==1
         run_staticFC;
     end
     
-elseif strcmpi(FMRI.anal.mode,'dynamicFC'),
+elseif strcmpi(FMRI.anal.mode,'dynamicFC')
     fprintf('dynamic FC is selected\n');
-    if check_iRSFC_params(1)==1,
+    if check_iRSFC_params(1)==1
         run_dynamicFC;
     end
     
-elseif strcmpi(FMRI.anal.mode,'ALFF'),
+elseif strcmpi(FMRI.anal.mode,'ALFF')
     fprintf('ALFF analysis is selected\n');
-    if check_iRSFC_params(1)==1,
+    if check_iRSFC_params(1)==1
         run_ALFF;
     end
 elseif strcmpi(FMRI.anal.mode,'RLFF'),

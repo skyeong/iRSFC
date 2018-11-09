@@ -20,7 +20,7 @@ nROIimgs = FMRI.anal.FC.nROIimgs;
 
 
 seeds={};
-if ~isempty(SEEDATLAS),
+if ~isempty(SEEDATLAS)
     
     %  LOAD BRAIN ATLAS
     %______________________________________________________________________
@@ -40,7 +40,7 @@ if ~isempty(SEEDATLAS),
     %______________________________________________________________________
     
     s=1; nseed=0;
-    for i=1:length(SEEDATLAS),
+    for i=1:length(SEEDATLAS)
         ATLASnum=SEEDATLAS(i);
         atlasname=sprintf('%s_%s',selected_atlas,atlasLabel{ATLASnum});
         
@@ -68,7 +68,7 @@ if ~isempty(SEEDATLAS),
         %  SAVE ROI AS NIFTI FILE FORMAT
         %__________________________________________________________________
         
-        if DEBUGmode,
+        if DEBUGmode
             vo = vref;
             SAVEpath=fullfile(ANApath,'ROIs'); mkdir(SAVEpath);
             SAVEname=sprintf('%s.img',atlasname);
@@ -87,12 +87,12 @@ end
 %  Generate ROI from User Defined Mask Images
 %__________________________________________________________________________
 
-if nROIimgs && length(char(ROIimgs))>3,
+if nROIimgs && length(char(ROIimgs))>3
     
     nseed=0;
-    if exist('seeds','var'), nseed = length(seeds); end;
+    if exist('seeds','var'), nseed = length(seeds); end
     
-    for i=1:nROIimgs,
+    for i=1:nROIimgs
         fn_roi = ROIimgs{i};
         [p,f,e] = fileparts(fn_roi);
         
@@ -137,7 +137,7 @@ fprintf('  Seed ROIs from ATLAS and User defined\n');
 fprintf('=======================================================================\n');
 fprintf('  SEED ROIs: ')
 nrois = length(seeds);
-for s=1:nrois,
+for s=1:nrois
     fprintf('%s  ',seeds{s}.name);
 end
 fprintf('\n\n');

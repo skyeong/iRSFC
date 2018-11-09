@@ -1,5 +1,3 @@
-try, parpool; end;
-
 
 %  SPECIFY your own study
 %__________________________________________________________________________
@@ -32,7 +30,7 @@ pause(0.2);
 %  START THE SPM BATCH JOBS
 %__________________________________________________________________________
 
-for i = 1:length(subjnames),
+for i = 1:length(subjnames)
     subjname = subjnames{i};
     
     msg_on_handle=sprintf('subj %03d/%03d (ALFF analysis ...)',i,nsubj);

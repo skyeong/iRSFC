@@ -75,7 +75,7 @@ MOTION = detrend(MOTION(dummyoff+1:end,:),'linear');
 NUIS = [];
 if REGRESSORS(4),  NUIS = [NUIS, MOTION];       end
 
-if doCompCor==1,
+if doCompCor==1
     % Extract Physiological Noise using CompCor method
     noisePhy = [];
     if REGRESSORS(2), noisePhy = [noisePhy; IMG(idwm, :)]; end
@@ -99,7 +99,7 @@ nvox = length(idbrainmask);
 ts = iRSFC_NUIS_regress(IMG(idbrainmask,:)',NUIS)';
 tmpfALFF = zeros(nvox,1);
 tmpALFF  = zeros(nvox,1);
-parfor j=1:nvox,
+parfor j=1:nvox
     [cALFF, cFALFF] = LFCD_alff(ts(j,:), TR, f_lp, f_hp );
     tmpALFF(j) = cALFF;
     tmpfALFF(j) = cFALFF;

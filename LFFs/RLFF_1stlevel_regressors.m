@@ -82,7 +82,7 @@ st = dummyoff+1;
 PARAMS = LFF_model;
 if REGRESSORS(4),  PARAMS = [PARAMS, MOTION(st:end,:)];       end
 
-if doCompCor==1,
+if doCompCor==1
     % Extract Physiological Noise using CompCor method
     noisePhy = [];
     if REGRESSORS(2), noisePhy = [noisePhy; IMG(idwm, st:end)]; end

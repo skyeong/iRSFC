@@ -97,7 +97,7 @@ catch
     set(handles.analcorr_status,'ForegroundColor','k');
     set(handles.analcorr_status,'FontWeight','normal');    return
 end
-if length(vref)>1,vref=vref(1);end;
+if length(vref)>1,vref=vref(1);end
 DIM = vref.dim(1:3);
 [idbrainmask, idgm, idwm, idcsf] = fmri_load_maskindex(vref);
 
@@ -129,12 +129,12 @@ if (nrois),
     nsubj = length(subjnames);
     
     % Initialize Network data
-    if FMRI.anal.checkbox_isNetworkmode==1,
+    if FMRI.anal.checkbox_isNetworkmode==1
         ZZ = zeros(nsubj,nrois,nrois);
     end
     
     
-    for c=1:nsubj,
+    for c=1:nsubj
         
         subj = subjnames{c};
         fprintf('  [%03d/%03d] subj %s is in analyzing ... (%.1f min.) \n',c,nsubj,subj,toc/60);
@@ -169,7 +169,7 @@ if (nrois),
         Z = spm_read_vols(vs);
         Z = reshape(Z, prod(vs(1).dim), length(vs));
         
-        if doScrubbing,
+        if doScrubbing
             
             %  Compute Frame-wise displacement for scrubbing time-series
             %______________________________________________________________
@@ -178,7 +178,7 @@ if (nrois),
             fn_motion = dir(fullfile(subjpath,'rp_*.txt'));
             fn_motion = fullfile(subjpath,fn_motion(1).name);
             
-            if ~exist(fn_motion,'file'),
+            if ~exist(fn_motion,'file')
                 fprintf('Cannot find rp*.txt file in\n%s\n',subjpath);
                 break;
             end
@@ -200,7 +200,7 @@ if (nrois),
         %  SEED BASED CORRELATION
         %__________________________________________________________________
         
-        if FMRI.anal.checkbox_isSeedmode==1,
+        if FMRI.anal.checkbox_isSeedmode==1
             msg_on_handle=sprintf('subj %03d/%03d (Analysis ...)',c,nsubj);
             set(handles.analcorr_status,'String',msg_on_handle);
             set(handles.analcorr_status,'ForegroundColor',colorsalmon);
@@ -217,7 +217,7 @@ if (nrois),
             set(handles.analcorr_status,'ForegroundColor',colorsalmon);
             set(handles.analcorr_status,'FontWeight','bold'); pause(1);
             
-            for s=1:length(seeds),
+            for s=1:length(seeds)
                 atlasname = seeds{s}.name;
                 
                 vo = vref;
@@ -233,7 +233,7 @@ if (nrois),
             end
         end
         
-        if FMRI.anal.checkbox_isNetworkmode==1,
+        if FMRI.anal.checkbox_isNetworkmode==1
             msg_on_handle=sprintf('subj %03d/%03d (Network analysis ...)',c,nsubj);
             set(handles.analcorr_status,'String',msg_on_handle);
             set(handles.analcorr_status,'ForegroundColor',colorsalmon);
@@ -264,13 +264,13 @@ if (nrois),
     end
     
     % Write results in .csv format
-    if FMRI.anal.checkbox_isNetworkmode==1,
+    if FMRI.anal.checkbox_isNetworkmode==1
         % Write headers
         SAVEpath = fullfile(ANApath,'network',['roi_n' num2str(nseed)],FMRI.prep.fmridir); mkdir(SAVEpath);
         fn_hdr = fullfile(SAVEpath,'FC_ROInames.csv');
         fid = fopen(fn_hdr,'w+');
         fprintf(fid,'node number, ROI file name\n');
-        for i=1:length(seeds),
+        for i=1:length(seeds)
             fprintf(fid,'%d, %s\n', i,seeds{i}.name);
         end
         fclose(fid);
@@ -279,20 +279,20 @@ if (nrois),
         fn_dat = fullfile(SAVEpath,'FC_data.csv');
         fid = fopen(fn_dat,'w+');
         fprintf(fid,'subjname,');
-        for i=1:nrois,
-            for j=(i+1):nrois,
-                if i==(nrois-1) && j==nrois,
+        for i=1:nrois
+            for j=(i+1):nrois
+                if i==(nrois-1) && j==nrois
                     fprintf(fid,'ROI_%d-%d\n',i,j);
                 else
                     fprintf(fid,'ROI_%d-%d,',i,j);
                 end
             end
         end
-        for c=1:nsubj,
+        for c=1:nsubj
             fprintf(fid,'%s,',subjnames{c});
-            for i=1:nrois,
-                for j=(i+1):nrois,
-                    if i==(nrois-1) && j==nrois,
+            for i=1:nrois
+                for j=(i+1):nrois
+                    if i==(nrois-1) && j==nrois
                         fprintf(fid,'%.3f\n',ZZ(c,i,j));
                     else
                         fprintf(fid,'%.3f,',ZZ(c,i,j));
