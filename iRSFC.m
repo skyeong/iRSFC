@@ -391,9 +391,9 @@ elseif strcmpi(FMRI.anal.mode,'ALFF')
     if check_iRSFC_params(1)==1
         run_ALFF;
     end
-elseif strcmpi(FMRI.anal.mode,'RLFF'),
+elseif strcmpi(FMRI.anal.mode,'RLFF')
     fprintf('RLFF analysis is selected\n');
-    if check_iRSFC_params(1)==1,
+    if check_iRSFC_params(1)==1
         run_RLFF;
     end
 else
@@ -410,15 +410,15 @@ end
 function popupmenu_analmode_Callback(hObject, eventdata, handles)
 global FMRI
 button_state = get(hObject,'Value');
-if button_state == 1,
+if button_state == 1
     analmode = 'Preprocess';
-elseif button_state == 2,
+elseif button_state == 2
     analmode = 'staticFC';
-elseif button_state == 3,
+elseif button_state == 3
     analmode = 'dynamicFC';
-elseif button_state == 4,
+elseif button_state == 4
     analmode = 'ALFF';
-elseif button_state == 5,
+elseif button_state == 5
     analmode = 'RLFF';
 end
 FMRI.anal.mode = analmode;
