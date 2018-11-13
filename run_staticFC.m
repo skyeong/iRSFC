@@ -9,15 +9,8 @@ fprintf('  Static Functional Connectivity ...\n');
 fprintf('=======================================================================\n\n');
 
 
-%  OPEN MATLABPOOL IF POSSIBLE
-%__________________________________________________________________________
-
-try parpool; end;
-
-
-
 %  Flag for Debug mode
-%__________________________________________________________________________
+%--------------------------------------------------------------------------
 
 DEBUGmode = 0;
 
@@ -193,6 +186,7 @@ if (nrois)
             idxScrubbing = [idxScrubbing(:); idxScrubbing_b1(:); idxScrubbing_a1(:); idxScrubbing_a2(:)];
             idxScrubbing = unique(idxScrubbing);
             idxScrubbing(idxScrubbing==0)=[];
+            idxScrubbing(idxScrubbing>length(FD_val))=[];
             Z(:,idxScrubbing) = [];
             fprintf('    : scrubbing %d scans by FD>%.1f ...\n', length(idxScrubbing), FDthr);
         end
@@ -205,6 +199,7 @@ if (nrois)
             set(handles.analcorr_status,'String',msg_on_handle);
             set(handles.analcorr_status,'ForegroundColor',colorsalmon);
             set(handles.analcorr_status,'FontWeight','bold'); pause(1);
+            fprintf('    : calculating functional connectivity (%d x %d) ...\n',size(Z(idbrainmask,:)));
             
             zs=fmri_seedcorr_static(Z(idbrainmask,:),DIM,seeds,idbrainmask);
             
@@ -239,7 +234,7 @@ if (nrois)
             set(handles.analcorr_status,'ForegroundColor',colorsalmon);
             set(handles.analcorr_status,'FontWeight','bold'); pause(1);
             
-            fprintf('    : calculating functional network ...\n');
+            fprintf('    : calculating functional network (%d x %d) ...\n',size(Z(idbrainmask,:)));
             [Z,R,P]=fmri_network_static(Z(idbrainmask,:),DIM,seeds,idbrainmask);
             
             

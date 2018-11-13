@@ -95,9 +95,6 @@ set(handles.edit_prefix, 'String', FMRI.prep.prefix);
 %**************************************************************************
 % LOAD SUBJECT INFORMATION
 %**************************************************************************
-
-
-
 function select_subjinfo_Callback(hObject, eventdata, handles)
 global FMRI
 
@@ -130,7 +127,6 @@ FMRI.prep.subjList = subjList;
 %**************************************************************************
 % TEMPORAL PREPROCESSING CALLBACK FUNCTIONS
 %**************************************************************************
-
 function edit_prefix_Callback(hObject, eventdata, handles)
 global FMRI
 FMRI.prep.prefix = get(hObject,'String');
@@ -294,8 +290,6 @@ FMRI.anal.checkbox_isNetworkmode = get(hObject,'Value');
 %**************************************************************************
 % FUNCTIONAL CONNECTIVITY CALLBACK FUNCTIONS
 %**************************************************************************
-
-
 function edit_seed_from_Atlas_Callback(hObject, eventdata, handles)
 global FMRI
 seed_ids = get(hObject,'String');
@@ -446,7 +440,6 @@ fprintf('Sliding steps: %d scans\n',slidingSteps);
 %**************************************************************************
 % Utilities
 %**************************************************************************
-
 function pushbutton_extract_ROIs_Callback(hObject, eventdata, handles)
 extract
 
