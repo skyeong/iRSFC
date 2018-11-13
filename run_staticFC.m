@@ -17,7 +17,7 @@ DEBUGmode = 0;
 
 
 %  SPECIFY your own study
-%__________________________________________________________________________
+%--------------------------------------------------------------------------
 
 DATApath  = FMRI.prep.DATApath;
 subjnames = FMRI.prep.subjList;
@@ -28,8 +28,7 @@ prefix    = FMRI.prep.prefix;
 
 
 %  PARAMETERS FOR TEMPORAL FMRI DATA PROCESSING
-%__________________________________________________________________________
-
+%--------------------------------------------------------------------------
 TR        = FMRI.prep.TR;        % TR time: volume acquisition time
 BW        = FMRI.prep.BW;        % frequency range for bandpass filter
 dummyoff  = FMRI.prep.dummyoff;  % num. of dummy data from beginning
@@ -39,8 +38,7 @@ FILTPARAM = [TR BW];             % set filtering parameters
 
 
 %  REGRESSORS SELECTION
-%__________________________________________________________________________
-
+%--------------------------------------------------------------------------
 REGRESSORS(1) = FMRI.prep.GS;
 REGRESSORS(2) = FMRI.prep.WM;
 REGRESSORS(3) = FMRI.prep.CSF;
@@ -48,32 +46,28 @@ REGRESSORS(3) = FMRI.prep.CSF;
 
 
 %  SEED SELECTION
-%__________________________________________________________________________
-
+%--------------------------------------------------------------------------
 selected_atlas = FMRI.anal.selected_atlas;
 SEEDATLAS      = FMRI.anal.FC.ids;
 
 
 
 %  About ROI Images
-%__________________________________________________________________________
-
+%--------------------------------------------------------------------------
 ROIimgs  = FMRI.anal.FC.ROIimgs;
 nROIimgs = FMRI.anal.FC.nROIimgs;
 
 
 
 %  Scrubbing option
-%__________________________________________________________________________
-
+%--------------------------------------------------------------------------
 FDthr       = FMRI.anal.FC.FDthr;
 doScrubbing = FMRI.anal.FC.doScrubbing;
 
 
 
 %  FIND REFERENCE FILE
-%__________________________________________________________________________
-
+%--------------------------------------------------------------------------
 subjpath = fullfile(DATApath,subjnames{1},fmridir);
 fn_nii = sprintf('^%s.*._cleaned_bpf.nii$',prefix);
 fns = spm_select('FPList',subjpath,fn_nii);
@@ -98,16 +92,14 @@ DIM = vref.dim(1:3);
 
 
 %  GET SEED INFORMATION
-%__________________________________________________________________________
-
+%--------------------------------------------------------------------------
 seeds = get_seed_ROIs(ANApath,vref,DEBUGmode);
 nrois = length(seeds);
 
 
 
 %  CORRELATION ANALYSIS USING TIME SERIES
-%__________________________________________________________________________
-
+%--------------------------------------------------------------------------
 colorsalmon = [234, 100, 100]/255.;
 if (nrois)
     fprintf('\n=======================================================================\n');
@@ -134,7 +126,7 @@ if (nrois)
         
         
         %  Functional Connectivity
-        %__________________________________________________________________
+        %------------------------------------------------------------------
         
         msg_on_handle=sprintf('subj %03d/%03d (Loading images...)  ',c,nsubj);
         set(handles.analcorr_status,'String',msg_on_handle);
@@ -165,8 +157,8 @@ if (nrois)
         if doScrubbing
             
             %  Compute Frame-wise displacement for scrubbing time-series
-            %______________________________________________________________
-          
+            %--------------------------------------------------------------
+            
             fprintf('    : calculating seed based connectivity ...\n');
             fn_motion = dir(fullfile(subjpath,'rp_*.txt'));
             fn_motion = fullfile(subjpath,fn_motion(1).name);
@@ -192,7 +184,7 @@ if (nrois)
         end
         
         %  SEED BASED CORRELATION
-        %__________________________________________________________________
+        %------------------------------------------------------------------
         
         if FMRI.anal.checkbox_isSeedmode==1
             msg_on_handle=sprintf('subj %03d/%03d (Analysis ...)',c,nsubj);
@@ -205,7 +197,7 @@ if (nrois)
             
             
             %  WRITE RESULTS ...
-            %__________________________________________________________________
+            %--------------------------------------------------------------
             
             msg_on_handle=sprintf('subj %03d/%03d (Write vols ...)',c,nsubj);
             set(handles.analcorr_status,'String',msg_on_handle);
@@ -218,7 +210,7 @@ if (nrois)
                 vo = vref;
                 SAVEpath=fullfile(ANApath,'staticFC_zmaps',atlasname,FMRI.prep.fmridir); mkdir(SAVEpath);
                 SAVEname=sprintf('zscore_%s_%s.nii',atlasname,subj);
-                    
+                
                 vo.fname=fullfile(SAVEpath, SAVEname);
                 vo.dt=[16 0];
                 IMG = zeros(vref.dim);
@@ -239,7 +231,7 @@ if (nrois)
             
             
             %  WRITE RESULTS ...
-            %__________________________________________________________________
+            %--------------------------------------------------------------
             
             msg_on_handle=sprintf('subj %03d/%03d (Write Aij ...)',c,nsubj);
             set(handles.analcorr_status,'String',msg_on_handle);
@@ -259,6 +251,7 @@ if (nrois)
     end
     
     % Write results in .csv format
+    %----------------------------------------------------------------------
     if FMRI.anal.checkbox_isNetworkmode==1
         % Write headers
         SAVEpath = fullfile(ANApath,'network',['roi_n' num2str(nseed)],FMRI.prep.fmridir); mkdir(SAVEpath);
