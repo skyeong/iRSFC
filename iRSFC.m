@@ -304,6 +304,8 @@ global FMRI
 
 if strcmpi(FMRI.anal.selected_atlas,'AAL')
     [a,b,data]=xlsread('AAL.xls');
+elseif strcmpi(FMRI.anal.selected_atlas,'AAL2')
+    [a,b,data]=xlsread('AAL2.xls');
 elseif strcmpi(FMRI.anal.selected_atlas,'shen_268')
     [a,b,data]=xlsread('shen_268.xls');
 elseif strcmpi(FMRI.anal.selected_atlas,'Dosenbach')
@@ -350,10 +352,12 @@ button_state = get(hObject,'Value');
 if button_state == 2
     selected_atlas = 'AAL';
 elseif button_state == 3
-    selected_atlas = 'shen_268';
+    selected_atlas = 'AAL2';
 elseif button_state == 4
-    selected_atlas = 'Dosenbach';
+    selected_atlas = 'shen_268';
 elseif button_state == 5
+    selected_atlas = 'Dosenbach';
+elseif button_state == 6
     selected_atlas = 'HarvardOxford';
 end
 FMRI.anal.selected_atlas = selected_atlas;
