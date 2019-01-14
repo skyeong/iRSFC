@@ -7,7 +7,6 @@ global FMRI
 
 %  PARAMETERS FOR TEMPORAL FMRI DATA PROCESSING
 %--------------------------------------------------------------------------
-
 TR        = FMRI.prep.TR;        % TR time: volume acquisition time
 BW        = FMRI.prep.BW;        % frequency range for bandpass filter
 dummyoff  = FMRI.prep.dummyoff;  % num. of dummy data from beginning
@@ -111,15 +110,18 @@ NUIS = MOTION;
 
 if doCompCor==1
     % Extract Physiological Noise using CompCor method
-    noisePhy = [];
-    if REGRESSORS(2), noisePhy = [noisePhy; Y(idwm,:)]; end
-    if REGRESSORS(3), noisePhy = [noisePhy; Y(idcsf,:)]; end
-    
-    % Singular Value Decomposition
-    [coeff1,score,latent,tsquared,explained] = pca(noisePhy,'Algorithm','svd','NumComponents',nCompCor);
-    noiseComp = coeff1;
-    NUIS = [NUIS, noiseComp];
-    fprintf('    : %d-PCs using aCompCor were modeled (var = %.2f pct).\n',nCompCor,sum(explained(1:nCompCor)));
+    if REGRESSORS(2)
+        % Singular Value Decomposition
+        [coeff2,score2,latent2,tsquared2,explained2] = pca(Y(idwm,:),'Algorithm','svd','NumComponents',nCompCor);
+        fprintf('    : [WM] %d-PCs using aCompCor were modeled (var = %.2f pct).\n',nCompCor,sum(explained2(1:nCompCor)));
+        NUIS = [NUIS; coeff2];
+    end
+    if REGRESSORS(3)
+        % Singular Value Decomposition
+        [coeff3,score3,latent3,tsquared3,explained3] = pca(Y(idcsf,:),'Algorithm','svd','NumComponents',nCompCor);
+        fprintf('    : [CSF] %d-PCs using aCompCor were modeled (var = %.2f pct).\n',nCompCor,sum(explained3(1:nCompCor)));
+        NUIS = [NUIS; coeff3];
+    end
 else
     % Extract Physiological Noise using mean value
     if REGRESSORS(1), NUIS = [NUIS, GS];         end
