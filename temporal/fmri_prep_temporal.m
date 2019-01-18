@@ -114,13 +114,13 @@ if doCompCor==1
         % Singular Value Decomposition
         [coeff2,score2,latent2,tsquared2,explained2] = pca(Y(idwm,:),'Algorithm','svd','NumComponents',nCompCor);
         fprintf('    : [WM] %d-PCs using aCompCor were modeled (var = %.2f pct).\n',nCompCor,sum(explained2(1:nCompCor)));
-        NUIS = [NUIS; coeff2];
+        NUIS = [NUIS, coeff2];
     end
     if REGRESSORS(3)
         % Singular Value Decomposition
         [coeff3,score3,latent3,tsquared3,explained3] = pca(Y(idcsf,:),'Algorithm','svd','NumComponents',nCompCor);
         fprintf('    : [CSF] %d-PCs using aCompCor were modeled (var = %.2f pct).\n',nCompCor,sum(explained3(1:nCompCor)));
-        NUIS = [NUIS; coeff3];
+        NUIS = [NUIS, coeff3];
     end
 else
     % Extract Physiological Noise using mean value
